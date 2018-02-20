@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Field, reduxForm } from "redux-form";
 import {
   Container,
   Content,
@@ -7,35 +6,63 @@ import {
   Item,
   Input,
   Button,
-  Text
+  Text,
+  Header,
+  InputGroup,
+  Icon
 } from "native-base";
 
+import { Field, reduxForm, SubmissionError } from "redux-form";
+
 const renderField = ({
-  /* Listening to the input values */
   input: { onChange, ...restInput },
-  name,
   placeholder,
   secureTextEntry,
-  meta: { touched: error }
+  meta: { touched, error }
 }) =>
-  <input
-    name={name}
-    placeholder={placeholder}
-    /* Decapitalize input entries */
-    autoCapitalization="none"
-    onChangeText={onChange}
-    {...restInput}
-    secureTextEntry={secureTextEntry}
-  />;
+  <InputGroup error={touched && error ? true : false}>
+    <Input
+      placeholder={placeholder}
+      autoCapitalize="none"
+      onChangeText={onChange}
+      {...restInput}
+      secureTextEntry={secureTextEntry}
+    />
+    {touched && error && <Icon name="close-circle" style={{ color: "red" }} />}
+  </InputGroup>;
 
-const signup = () =>
+const onSubmit = ({ username = "", email = "", password = "" }) => {
+  let errors = {};
+  let isError = false;
+  if (username.trim() === "") {
+    errors.username = "Required";
+    isError = true;
+  }
+  if (email.trim() === "") {
+    errors.email = "Required";
+    isError = true;
+  }
+  if (password.trim() === "") {
+    errors.password = "Required";
+    isError = true;
+  }
+
+  if (isError) {
+    throw new SubmissionError(errors);
+  } else {
+    //submit form
+  }
+};
+
+const signup = ({ handleSubmit }) =>
   <Container>
+    <Header />
     <Content>
       <Form>
         <Item>
           <Field
             name="username"
-            palceholder="Username"
+            placeholder="Username"
             component={renderField}
           />
         </Item>
@@ -56,6 +83,7 @@ const signup = () =>
         </Item>
         <Button
           style={{ marginTop: 50, marginRight: 10, marginLeft: 10 }}
+          onPress={handleSubmit(onSubmit)}
           block
         >
           <Text>Signup</Text>
